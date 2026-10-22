@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cryptography — toolkit kriptografi modern
 
-## Getting Started
+Kumpulan 11 alat kriptografi yang berjalan **100% di browser** dengan [Web Crypto API](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API).
+Tidak ada data yang dikirim ke server: semua hashing, enkripsi, dan pembuatan kunci terjadi di perangkat pengguna.
 
-First, run the development server:
+Dibangun dengan Next.js 16 (App Router), React 19, dan Tailwind CSS 4.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Fitur
+
+| Kategori     | Alat                     | Isi                                                                                   |
+| ------------ | ------------------------ | ------------------------------------------------------------------------------------- |
+| Hashing      | **Generator Hash**       | MD5, SHA-1, SHA-256/384/512 untuk teks atau berkas, plus verifikasi checksum          |
+|              | **HMAC**                 | Buat & verifikasi HMAC-SHA-1/256/384/512, kunci dalam teks/hex/Base64                 |
+| Enkripsi     | **Enkripsi Teks**        | AES-256-GCM + PBKDF2-SHA256 (bawaan 600.000 iterasi)                                  |
+|              | **Enkripsi Berkas**      | Seret-lepas berkas, nama & tipe asli tersegel di dalam berkas `.enc`                  |
+| Kunci publik | **Generator Kunci**      | Ed25519, ECDSA P-256/P-384, RSA-PSS, RSA-OAEP, X25519, ECDH → PEM / JWK + sidik jari  |
+|              | **Tanda Tangan Digital** | Tanda tangani & verifikasi; algoritma terdeteksi otomatis dari kunci PEM              |
+| Utilitas     | **Debugger JWT**         | Decode, cek kedaluwarsa, verifikasi HS/RS/PS/ES/EdDSA, dan buat token HS256/384/512   |
+|              | **Generator Kata Sandi** | CSPRNG tanpa bias + pemeriksa kekuatan (entropi, pola umum, estimasi waktu retas)     |
+|              | **Acak & UUID**          | UUID v4, UUID v7 (terurut waktu), byte acak hex/Base64/Base64URL, token alfanumerik   |
+|              | **Encoder / Decoder**    | Base64, Base64URL, Hex, biner, URL — aman untuk UTF-8 dan emoji                       |
+| Belajar      | **Sandi Klasik**         | Caesar, ROT13, Vigenère, Atbash + pemecah Caesar berbasis frekuensi huruf (EN & ID)   |
+
+Fitur antarmuka:
+
+- **Dwibahasa** Indonesia / English dengan URL per bahasa (`/id/...`, `/en/...`). Bahasa dipilih otomatis dari
+  `Accept-Language` dan pilihan manual diingat lewat cookie.
+- **Tema terang / gelap / sistem** tanpa kedipan saat memuat (skrip inline sebelum render pertama).
+- **Palet perintah** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> atau <kbd>/</kbd>) untuk lompat ke alat atau mengganti tema/bahasa.
+- Pintasan <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> untuk enkripsi/dekripsi, salin sekali klik dengan notifikasi.
+- Responsif (sidebar menjadi drawer di ponsel), dapat dipasang sebagai PWA (manifest + ikon), dan halaman statis (SSG).
+- Header keamanan: `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, COOP.
+
+## Format data terenkripsi
+
+Teks dan berkas memakai wadah biner yang sama (teks ditampilkan sebagai Base64):
+
+```
+"CRY" (3) | versi (1) | jenis (1) | iterasi PBKDF2 (4, big-endian) | salt (16) | IV (12) | ciphertext + tag GCM (16)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Seluruh header 37 byte ikut diautentikasi sebagai _additional data_ AES-GCM, jadi perubahan jumlah iterasi, salt,
+atau jenis data akan terdeteksi. Berkas menyimpan `{ name, type }` dalam bentuk JSON di dalam bagian yang terenkripsi.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Menjalankan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Buka [http://localhost:3000](http://localhost:3000) — Anda akan diarahkan ke `/id` atau `/en`.
 
-To learn more about Next.js, take a look at the following resources:
+| Perintah            | Fungsi                                                          |
+| ------------------- | --------------------------------------------------------------- |
+| `npm run dev`       | Server pengembangan                                             |
+| `npm run build`     | Build produksi (semua halaman alat di-prerender)                |
+| `npm start`         | Menjalankan hasil build                                         |
+| `npm test`          | Tes unit library kripto (test runner bawaan Node, tanpa dependensi) |
+| `npm run typecheck` | Pemeriksaan TypeScript                                          |
+| `npm run lint`      | ESLint                                                          |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktur
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+  [lang]/layout.tsx        root layout: font, skrip tema, provider i18n, shell
+  [lang]/page.tsx          beranda
+  [lang]/[tool]/page.tsx   halaman setiap alat (SSG via generateStaticParams)
+  manifest.ts, icon.svg    PWA
+proxy.ts                   pengalihan `/` → `/id` atau `/en`
+components/
+  shell/                   sidebar, header, palet perintah
+  tools/                   satu komponen per alat
+  ui.tsx                   komponen dasar (Button, Field, Output, FileDrop, …)
+lib/
+  crypto/                  logika kripto murni + crypto.test.ts
+  i18n/                    konfigurasi bahasa dan kamus id/en
+  tools.ts                 daftar alat dan kategorinya
+```
 
-## Deploy on Vercel
+## Catatan keamanan
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- MD5 dan SHA-1 hanya untuk mencocokkan checksum lama; keduanya tidak aman terhadap collision.
+- Kekuatan enkripsi berbasis kata sandi bergantung pada kata sandinya. Gunakan frasa sandi yang panjang dan unik.
+- Estimasi waktu retas kata sandi adalah perkiraan, bukan jaminan.
+- Sandi klasik hanya untuk pembelajaran.

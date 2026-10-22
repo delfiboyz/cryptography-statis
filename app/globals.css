@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
+/* `dark:` follows the resolved theme set by the inline script, not only the OS. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-muted: #f4f4f5;
+  --fg: #18181b;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --accent: #059669;
+  --accent-hover: #047857;
+  --accent-fg: #ffffff;
+  --glow-1: rgb(16 185 129 / 0.14);
+  --glow-2: rgb(139 92 246 / 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --bg: #09090b;
+  --surface: #111113;
+  --surface-raised: #18181b;
+  --surface-muted: #1a1a1e;
+  --fg: #fafafa;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --border-strong: #3f3f46;
+  --accent: #34d399;
+  --accent-hover: #6ee7b7;
+  --accent-fg: #022c22;
+  --glow-1: rgb(16 185 129 / 0.16);
+  --glow-2: rgb(139 92 246 / 0.12);
 }
 
+/* Without JavaScript the inline theme script never runs; fall back to the OS setting. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme]) {
+    --bg: #09090b;
+    --surface: #111113;
+    --surface-raised: #18181b;
+    --surface-muted: #1a1a1e;
+    --fg: #fafafa;
+    --muted: #a1a1aa;
+    --border: #27272a;
+    --border-strong: #3f3f46;
+    --accent: #34d399;
+    --accent-hover: #6ee7b7;
+    --accent-fg: #022c22;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-muted: var(--surface-muted);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --animate-toast-in: toast-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-fade-up: fade-up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop-in: pop-in 0.16s ease-out;
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98) translateY(-4px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"] {
+    accent-color: var(--accent);
+  }
+
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* The theme toggle renders all three icons; the stored preference decides which one shows. */
+[data-theme-icon] {
+  display: none;
+}
+:root[data-theme-pref="system"] [data-theme-icon="system"],
+:root[data-theme-pref="light"] [data-theme-icon="light"],
+:root[data-theme-pref="dark"] [data-theme-icon="dark"],
+:root:not([data-theme-pref]) [data-theme-icon="system"] {
+  display: block;
+}
+
+/* Shortcut hints: ⌘ on Apple platforms, Ctrl elsewhere. */
+.kbd-apple {
+  display: none;
+}
+:root[data-platform="apple"] .kbd-apple {
+  display: inline;
+}
+:root[data-platform="apple"] .kbd-other {
+  display: none;
 }

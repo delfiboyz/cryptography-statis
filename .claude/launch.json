@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "ulimit -n 65536 2>/dev/null; exec npm run dev"],
+      "port": 3000
+    },
+    {
+      "name": "start",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start", "--", "-p", "3001"],
+      "port": 3001
+    }
+  ]
+}
