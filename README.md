@@ -28,8 +28,8 @@ Fitur antarmuka:
 - **Tema terang / gelap / sistem** tanpa kedipan saat memuat (skrip inline sebelum render pertama).
 - **Palet perintah** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> atau <kbd>/</kbd>) untuk lompat ke alat atau mengganti tema/bahasa.
 - Pintasan <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> untuk enkripsi/dekripsi, salin sekali klik dengan notifikasi.
-- Responsif (sidebar menjadi drawer di ponsel), dapat dipasang sebagai PWA (manifest + ikon), dan halaman statis (SSG).
-- Header keamanan: `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, COOP.
+- Responsif (sidebar menjadi drawer di ponsel) dan dapat dipasang sebagai PWA (manifest + ikon).
+- Sepenuhnya statis (`output: "export"`), sehingga bisa di-hosting di GitHub Pages.
 
 ## Format data terenkripsi
 
@@ -49,16 +49,31 @@ npm install
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) — Anda akan diarahkan ke `/id` atau `/en`.
+Buka [http://localhost:3000/id](http://localhost:3000/id) atau `/en`.
 
 | Perintah            | Fungsi                                                          |
 | ------------------- | --------------------------------------------------------------- |
 | `npm run dev`       | Server pengembangan                                             |
-| `npm run build`     | Build produksi (semua halaman alat di-prerender)                |
-| `npm start`         | Menjalankan hasil build                                         |
+| `npm run build`     | Export statis ke folder `out/`                                  |
+| `npm run preview`   | Menyajikan `out/` di http://localhost:3001                      |
 | `npm test`          | Tes unit library kripto (test runner bawaan Node, tanpa dependensi) |
 | `npm run typecheck` | Pemeriksaan TypeScript                                          |
 | `npm run lint`      | ESLint                                                          |
+
+## Deploy ke GitHub Pages
+
+Workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) membangun dan men-deploy situs setiap ada push ke `main`.
+
+1. Push repo ini ke GitHub.
+2. Di **Settings → Pages**, pilih **Source: GitHub Actions**.
+3. Push ke `main` (atau jalankan workflow secara manual dari tab **Actions**).
+
+Base path (`/<nama-repo>`) diisi otomatis oleh `actions/configure-pages`, jadi situs bekerja baik di
+`https://<user>.github.io/<repo>/` maupun di repo `<user>.github.io`. Halaman `/` adalah `public/index.html` kecil yang
+mengarahkan ke `/id/` atau `/en/` sesuai pilihan tersimpan atau bahasa browser.
+
+Keterbatasan hosting statis: GitHub Pages tidak bisa mengirim header HTTP khusus, jadi header keamanan
+(`X-Frame-Options`, `Permissions-Policy`, dll.) tidak tersedia di sana.
 
 ## Struktur
 
@@ -68,7 +83,8 @@ app/
   [lang]/page.tsx          beranda
   [lang]/[tool]/page.tsx   halaman setiap alat (SSG via generateStaticParams)
   manifest.ts, icon.svg    PWA
-proxy.ts                   pengalihan `/` → `/id` atau `/en`
+public/index.html          pengalihan `/` → `/id/` atau `/en/`
+.github/workflows/         deploy GitHub Pages
 components/
   shell/                   sidebar, header, palet perintah
   tools/                   satu komponen per alat

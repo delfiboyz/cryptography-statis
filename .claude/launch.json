@@ -4,13 +4,22 @@
     {
       "name": "dev",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "ulimit -n 65536 2>/dev/null; exec npm run dev"],
+      "runtimeArgs": [
+        "-c",
+        "ulimit -n 65536 2>/dev/null; exec npm run dev"
+      ],
       "port": 3000
     },
     {
       "name": "start",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start", "--", "-p", "3001"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "3001",
+        "--directory",
+        "out"
+      ],
       "port": 3001
     }
   ]

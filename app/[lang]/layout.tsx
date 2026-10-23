@@ -21,6 +21,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Static export: every locale/tool is prerendered, anything else is a 404.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }

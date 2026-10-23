@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cryptography</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      // Static replacement for the locale redirect: saved choice first, then the browser language.
+      (function () {
+        var saved = (document.cookie.match(/(?:^|; )locale=(id|en)/) || [])[1];
+        var langs = navigator.languages || [navigator.language || ""];
+        var lang = saved;
+        for (var i = 0; !lang && i < langs.length; i++) {
+          var base = String(langs[i]).toLowerCase().split("-")[0];
+          if (base === "id" || base === "ms") lang = "id";
+          else if (base === "en") lang = "en";
+        }
+        location.replace("./" + (lang || "id") + "/" + location.hash);
+      })();
+    </script>
+  </head>
+  <body style="font-family: system-ui, sans-serif; background: #09090b; color: #fafafa">
+    <p><a href="./id/" style="color: #34d399">Bahasa Indonesia</a> · <a href="./en/" style="color: #34d399">English</a></p>
+  </body>
+</html>

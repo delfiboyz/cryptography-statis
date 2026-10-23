@@ -1,22 +1,17 @@
 import type { NextConfig } from "next";
 
-// Everything runs client-side, so the app never needs to be framed, sniffed or
-// given access to device sensors.
-const securityHeaders = [
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "DENY" },
-  { key: "Referrer-Policy", value: "no-referrer" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
-];
+// Static export for GitHub Pages. Project sites live under /<repo>, which the
+// deploy workflow passes in as PAGES_BASE_PATH (empty for local builds).
+const basePath = process.env.PAGES_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
+  output: "export",
+  basePath,
+  // Emit /id/hash/index.html so every URL resolves on a plain static host.
+  trailingSlash: true,
   poweredByHeader: false,
   // Pin the root: a stray lockfile in a parent directory would otherwise be picked up.
   turbopack: { root: __dirname },
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
 };
 
 export default nextConfig;

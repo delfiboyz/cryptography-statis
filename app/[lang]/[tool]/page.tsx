@@ -9,6 +9,9 @@ import { hasLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { CATEGORY_STYLES, findTool, TOOLS } from "@/lib/tools";
 
+// Static export: every locale/tool is prerendered, anything else is a 404.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return TOOLS.map((tool) => ({ tool: tool.slug }));
 }
